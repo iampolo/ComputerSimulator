@@ -24,7 +24,6 @@ public class SimUILauncher {
 		mFrame.setSize(500,400);
 		mFrame.setVisible(true);
 		
-		logger.debug("     .......... test");
 		
 		
 		return new Panel();
@@ -32,6 +31,8 @@ public class SimUILauncher {
 	
 	
 	public static void main(String[] args) {
+		logger.debug("Launching computer simulator");
+		
 		new SimUILauncher().createControlPanel();
 		
 		
