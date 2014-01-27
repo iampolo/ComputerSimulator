@@ -17,6 +17,11 @@ import net.miginfocom.swing.MigLayout;
 
 import org.apache.log4j.Logger;
 
+/**
+ * 
+ * @author marcoyeung
+ *
+ */
 public class MainSimFrame extends JFrame {
 	
 	private final static Logger logger = Logger.getLogger(MainSimFrame.class);
@@ -32,9 +37,9 @@ public class MainSimFrame extends JFrame {
 
 			JPanel panel = new JPanel(layout);
 
-			panel.add(new JLabel("Enter size:"));
+			panel.add(new JLabel("PC:"));
 			panel.add(new JTextField(""),            new CC().wrap());
-			panel.add(new JLabel("Enter weight:"));
+			panel.add(new JLabel("IR:"));
 			panel.add(new JTextField(""));
 	    
 	    

@@ -7,9 +7,10 @@ import javax.swing.JFrame;
 import org.apache.log4j.Logger;
 
 
-/*
+/**
  * 
- *  
+ * @author marcoyeung
+ *
  */
 public class SimUILauncher {
 	private final static Logger logger = Logger.getLogger(SimUILauncher.class);
