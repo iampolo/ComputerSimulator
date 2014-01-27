@@ -10,31 +10,24 @@
       <param name="ConversionPattern" value="%d{HH:mm:ss.SSS} [%t][%-5p] %c{2} - %m\n"/>
     </layout>
   </appender>
-  <appender name="guilogger" class="edu.gwu.cs6461.sim.util.TextAreaAppender">
+  <appender name="printer" class="edu.gwu.cs6461.sim.util.TextAreaAppender">
     <layout class="org.apache.log4j.PatternLayout">
       <param name="ConversionPattern" value="%d{HH:mm:ss.SSS} [%t][%-5p] %c{2} - %m\n"/>
     </layout>
   </appender>  
-  <appender name="Statistics" class="org.apache.log4j.RollingFileAppender">
-  	<param name="File" value="log/Statistics.log"/>
-	<param name="Append" value="true"/>
-    <layout class="org.apache.log4j.PatternLayout">
-      <param name="ConversionPattern" value="%d{HH:mm:ss.SSS} [%t][%-5p] %c{2} - %m\n"/>
-    </layout>
-  </appender>
   <appender name="CONSOLE" class="org.apache.log4j.ConsoleAppender">
     <layout class="org.apache.log4j.PatternLayout">
       <param name="ConversionPattern" value="%d{HH:mm:ss.SSS} [%t][%-5p] %c{2} - %m\n"/>
     </layout>
   </appender>
-  <logger name="dataflow.stat" additivity="false">
+  <logger name="simulator.printer" additivity="false">
     <level value="debug"/>
-    <appender-ref ref="Statistics"/>
+    <appender-ref ref="printer"/>
   </logger>    
   <root>
     <priority value ="debug"/>
     <appender-ref ref="filelogger"/>
-    <appender-ref ref="guilogger"/>
+    <appender-ref ref="printer"/>
    	<appender-ref ref="CONSOLE"/>
   </root>
 </log4j:configuration>
