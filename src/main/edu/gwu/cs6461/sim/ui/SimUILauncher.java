@@ -24,12 +24,9 @@ public class SimUILauncher {
 		
 		mFrame.init();
 		mFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		mFrame.setSize(700,700);
+		mFrame.setSize(800,700);
 		mFrame.setVisible(true);
-		mFrame.show();
 		
-		
-		simConsole.debug("Starting Simulator.");
 	}
 	
 	
