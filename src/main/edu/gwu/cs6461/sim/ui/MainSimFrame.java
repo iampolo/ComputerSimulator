@@ -8,8 +8,13 @@ import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
+import javaapplication1.Register;
 
 import javax.swing.BorderFactory;
+import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
@@ -26,11 +31,9 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.border.EtchedBorder;
 import javax.swing.border.TitledBorder;
 
-import net.miginfocom.layout.CC;
-import net.miginfocom.swing.MigLayout;
-
 import org.apache.log4j.Logger;
 
+import edu.gwu.cs6461.sim.common.RegisterName;
 import edu.gwu.cs6461.sim.util.GriddedPanel;
 import edu.gwu.cs6461.sim.util.TextAreaAppender;
 
@@ -60,9 +63,9 @@ public class MainSimFrame extends JFrame {
 	private JTextField txtR2 = new JTextField(10);
 	private JTextField txtR3 = new JTextField(10);
 	
-	private JLabel lblX1 = new JLabel("R1");
-	private JLabel lblX2 = new JLabel("R2");
-	private JLabel lblX3 = new JLabel("R3");
+	private JLabel lblX1 = new JLabel("X1");
+	private JLabel lblX2 = new JLabel("X2");
+	private JLabel lblX3 = new JLabel("X3");
 
 	private JTextField txtX1 = new JTextField(15);
 	private JTextField txtX2 = new JTextField(15);
@@ -92,7 +95,7 @@ public class MainSimFrame extends JFrame {
 	private JButton btnSingleStep = new JButton("Single Step");
 	
 	
-	private JComboBox swithOptions = new JComboBox();
+	private JComboBox<String> cboSwithOptions = new JComboBox<String>();
 	private JButton btnReset = new JButton("Reset");
 	private JButton btnLoad = new JButton("Load");
 	
@@ -102,7 +105,16 @@ public class MainSimFrame extends JFrame {
 	public MainSimFrame() {
 		// setLayout(new MigLayout());
 
+		RegisterName[] names = RegisterName.values();
+		String[] reg = new String[names.length];
+
+		for (int i = 0; i < reg.length; i++) {
+			reg[i] = new String();
+			reg[i] = names[i].getVal();
+		}
 		
+		cboSwithOptions = new JComboBox<String>(reg);
+
 		SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
 				TextAreaAppender.setTextArea(txtConsoleText);
@@ -124,16 +136,270 @@ public class MainSimFrame extends JFrame {
 //		pRegister.add(createMiscRPanel());
 //		add(pRegister);
 		
-		pRegister.addSpannedComponent(createSwitchPanel(10, 19),0,0,2,1);
-		pRegister.addComponent(createGeneralRPanel(),1,0,2,1,GridBagConstraints.EAST,GridBagConstraints.HORIZONTAL);
-		pRegister.addComponent(createIndexRPanel(),2,0,2,1,GridBagConstraints.NORTH,GridBagConstraints.HORIZONTAL);
-		pRegister.addComponent(createMiscRPanel(),3,0,2,1,GridBagConstraints.NORTH,GridBagConstraints.HORIZONTAL);
-		pRegister.addComponent(createConsolePanel(),5,0,2,2,GridBagConstraints.CENTER,GridBagConstraints.BOTH);
-		pRegister.addComponent(createControlPanel(),4,0,2,1,GridBagConstraints.EAST,GridBagConstraints.NONE);
 		
-//		simConsole.debug("Starting Simulator.");
+		JPanel regSwPanel = new JPanel();
+		JPanel regPanel = new JPanel();
+		regPanel.setLayout(new BoxLayout(regPanel, BoxLayout.X_AXIS));
+//		regPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
+		regPanel.add(createGeneralRPanel());
+		regPanel.add(createIndexRPanel());
+		regPanel.add(createMiscRPanel());
 		
-		add(pRegister);
+		regSwPanel.setLayout(new GridBagLayout());
+		GridBagConstraints c =new GridBagConstraints();
+		
+		c.gridx=0;
+		c.gridy=0;
+		c.gridwidth = 3;
+		regSwPanel.add(regPanel,c);
+		c.gridx=0;
+		c.gridy=1;
+		c.gridwidth = 2;
+		c.weightx = 1;
+		c.fill = GridBagConstraints.HORIZONTAL;
+//		c.anchor = GridBagConstraints.FIRST_LINE_END;
+		regSwPanel.add(createSwitchPanel(0, 19),c);
+		c.gridx=2;
+		c.gridy=1;
+		c.gridwidth = 1;
+		c.weightx = 0;
+		c.weighty = 1;
+		c.fill = GridBagConstraints.VERTICAL;
+		c.anchor = GridBagConstraints.FIRST_LINE_END;
+//		c.fill = GridBagConstraints.BOTH;
+		regSwPanel.add(createControlPanel(), c);
+		
+//		c.gridx=0;
+//		c.gridy=2;
+//		c.gridwidth = 3;
+//		regSwPanel.add(createConsolePanel(), c);
+		
+//		setLayout(new FlowLayout(FlowLayout.LEFT));
+		add(regSwPanel, BorderLayout.NORTH);
+		add(createConsolePanel(), BorderLayout.CENTER);
+		
+
+		logger.debug(getLayout());
+	}
+
+	
+	private JPanel createMiscRPanel(){
+		GriddedPanel gPanel = new GriddedPanel();
+		gPanel.setBorder(new TitledBorder(new EtchedBorder(), "Registers"));
+		gPanel.addComponent(lblMAR,0,0);
+		gPanel.addComponent(txtMAR,0,1);
+		gPanel.addComponent(lblMBR,1,0);
+		gPanel.addComponent(txtMBR,1,1);
+		gPanel.addComponent(lblMSR,2,0);
+		gPanel.addComponent(txtMSR,2,1);
+		gPanel.addComponent(lblMFR,3,0);
+		gPanel.addComponent(txtMFR,3,1);
+		gPanel.addComponent(lblCC,4,0);
+		gPanel.addComponent(txtCC,4,1);
+		gPanel.addComponent(lblIR,5,0);
+		gPanel.addComponent(txtIR,5,1);
+		gPanel.addComponent(lblPC,6,0);
+		gPanel.addComponent(txtPC,6,1);
+		
+//		gPanel.setBorder(new TitledBorder(BorderFactory.createLineBorder(Color.blue)));
+		
+		FlowLayout fl = new FlowLayout();
+		JPanel wrap = new JPanel();
+		wrap.setLayout(fl);
+		wrap.add(gPanel);
+		fl.setAlignment(FlowLayout.LEFT);
+		return wrap;
+	}
+	private JPanel createIndexRPanel(){
+		GriddedPanel gPanel = new GriddedPanel();
+		gPanel.setBorder(new TitledBorder(new EtchedBorder(), "Index"));
+		gPanel.addComponent(lblX1,0,0);
+		gPanel.addComponent(txtX1,0,1);
+		gPanel.addComponent(lblX2,1,0);
+		gPanel.addComponent(txtX2,1,1);
+		gPanel.addComponent(lblX3,2,0);
+		gPanel.addComponent(txtX3,2,1);
+//		gPanel.setBorder(new TitledBorder(BorderFactory.createLineBorder(Color.blue)));
+		
+		FlowLayout fl = new FlowLayout();
+		JPanel wrap = new JPanel();
+		wrap.setLayout(fl);
+		wrap.add(gPanel);
+		fl.setAlignment(FlowLayout.LEFT);
+		return wrap;
+	}
+
+	private JPanel createControlPanel(){
+		GriddedPanel gPanel = new GriddedPanel();
+		gPanel.setBorder(new TitledBorder(new EtchedBorder(), 
+			      "Control Panel"));
+		
+		gPanel.addComponent(btnSingleStep,0,0);
+		
+		
+		return gPanel;
+	}
+	
+	private JPanel createConsolePanel(){
+		
+		txtConsoleText.setFont( new Font("consolas", Font.PLAIN, 13));
+		txtConsoleText.setEditable(false);
+		JScrollPane scroll = new JScrollPane( txtConsoleText );
+//		scroll.setPreferredSize(new Dimension( 240, 180 ) );
+		
+		JPanel gPanel = new JPanel();
+		gPanel.setBorder(new TitledBorder(new EtchedBorder(), "Console"));
+		gPanel.setLayout(new BorderLayout());
+		gPanel.add(scroll, BorderLayout.CENTER);
+		
+		return gPanel;
+		
+	}
+	
+	
+	private JPanel createGeneralRPanel(){
+	    GriddedPanel gPanel = new GriddedPanel();
+	    gPanel.setBorder(new TitledBorder(new EtchedBorder(), "General"));
+	    
+		gPanel.addComponent(lblR0,0,0);
+		gPanel.addComponent(txtR0,0,1);
+		gPanel.addComponent(lblR1,1,0);
+		gPanel.addComponent(txtR1,1,1);
+		gPanel.addComponent(lblR2,2,0);
+		gPanel.addComponent(txtR2,2,1);
+		gPanel.addComponent(lblR3,3,0);
+		gPanel.addComponent(txtR3,3,1);
+//		gPanel.setBorder(new TitledBorder(BorderFactory.createLineBorder(Color.blue)));
+		
+		FlowLayout fl = new FlowLayout();
+		JPanel wrap = new JPanel();
+		wrap.setLayout(fl);
+		wrap.add(gPanel);
+		fl.setAlignment(FlowLayout.LEFT);
+		return wrap;
+		
+	}
+
+	
+	private JPanel createBinPanel(int start, int end) {
+		JPanel pBinPanel = new JPanel();
+		
+//		pBinPanel.setLayout(new GridBagLayout());
+		pBinPanel.setLayout(new BoxLayout(pBinPanel,BoxLayout.X_AXIS));
+		
+		JPanel tmp = null;
+		for (int i = start; i <= end; i++) {
+			tmp = new JPanel();
+			tmp.setLayout(new GridLayout(2,1,0,0));
+			
+			lblBinPosInfo[i] = new JLabel(String.valueOf(i));
+			lblBinPosInfo[i].setHorizontalAlignment(SwingConstants.CENTER);
+			lblBinPosInfo[i].setAlignmentY(RIGHT_ALIGNMENT);
+//			lblBinPosInfo[i].setBorder(new TitledBorder(BorderFactory.createLineBorder(Color.GREEN)));
+			tmp.add(lblBinPosInfo[i]);
+			
+			radBinData[i] = new JRadioButton();
+//			radBinData[i].setBorder(BorderFactory.createEmptyBorder());
+			logger.debug("bindata created:" + i);
+			tmp.add(radBinData[i]);
+//			tmp.setBorder(new TitledBorder(BorderFactory.createLineBorder(Color.blue)));
+			pBinPanel.add(tmp);
+		}
+		tmp.setBorder(BorderFactory.createEmptyBorder());
+		
+//		pBinPanel.setBorder(new TitledBorder(BorderFactory.createLineBorder(Color.blue)));
+		
+		return pBinPanel; 
+	}
+
+	private JPanel createSwitchPanel(int start, int end){
+		
+		
+		//Button only
+		JPanel btnPanel = new JPanel();
+		
+		btnPanel.add(cboSwithOptions);
+		cboSwithOptions.addActionListener(new SwitchComboActionListener());
+		cboSwithOptions.setSelectedIndex(0);
+		btnPanel.add(btnReset);
+		btnPanel.add(btnLoad);
+		FlowLayout fl = new FlowLayout();
+		fl.setAlignment(FlowLayout.RIGHT);
+		btnPanel.setLayout(fl);
+		//Button only 		
+		
+		JPanel wrapPanel = new JPanel();
+		wrapPanel.setBorder(new TitledBorder(new EtchedBorder(), "Switches"));
+//		wrapPanel.setLayout(new GridLayout(2,1,0,0));
+		wrapPanel.setLayout(new GridBagLayout());
+		
+		GridBagConstraints c= new GridBagConstraints();
+		c.gridx = 0;
+		c.gridy = 0;
+		c.anchor = GridBagConstraints.LINE_END;
+		wrapPanel.add(createBinPanel(start, end),c);
+		c.gridy = 1;
+		wrapPanel.add(btnPanel,c);
+		
+		return wrapPanel;
+	}
+	
+
+	
+
+	private JPanel createGeneralRPanelGrid(){
+		
+		
+		JPanel pGeneral = new JPanel();
+	    pGeneral.setBorder(new EmptyBorder(10, 10, 10, 10));
+		
+		JPanel pGLeft = new JPanel(new GridLayout(4,1,3,3));
+		JPanel pGRight = new JPanel(new GridLayout(4,1,3,3));
+		
+		pGLeft.add(lblR0);
+		pGRight.add(txtR0);
+		pGLeft.add(lblR1);
+		pGRight.add(txtR1);
+		pGLeft.add(lblR2);
+		pGRight.add(txtR2);
+		pGLeft.add(lblR3);
+		pGRight.add(txtR3);
+		
+		pGeneral.setLayout(new BorderLayout());
+		pGeneral.add(pGLeft, BorderLayout.WEST);
+		pGeneral.add(pGRight, BorderLayout.CENTER); //resizable
+		
+		return pGeneral;
+		
+	}
+	
+	private JPanel createMiscRPanelGrid(){
+		JPanel pMisc = new JPanel();
+	    pMisc.setBorder(new EmptyBorder(10, 10, 10, 10));
+		
+		JPanel pGLeft = new JPanel(new GridLayout(7,1,3,3));
+		JPanel pGRight = new JPanel(new GridLayout(7,1,3,3));
+
+		pGLeft.add(lblMAR);
+		pGRight.add(txtMAR);
+		pGLeft.add(lblMBR);
+		pGRight.add(txtMBR);
+		pGLeft.add(lblMSR);
+		pGRight.add(txtMSR);
+		pGLeft.add(lblMFR);
+		pGRight.add(txtMFR);
+		pGLeft.add(lblCC);
+		pGRight.add(txtCC);
+		pGLeft.add(lblIR);
+		pGRight.add(txtIR);
+		pGLeft.add(lblPC);
+		pGRight.add(txtPC);
+
+		pMisc.setLayout(new BorderLayout());
+		pMisc.add(pGLeft, BorderLayout.WEST);
+		pMisc.add(pGRight, BorderLayout.CENTER); //resizable
+		
+		return pMisc;
 		
 	}
 	
@@ -175,80 +441,6 @@ public class MainSimFrame extends JFrame {
 		return sInter;
 	}
 	
-	private JPanel createMiscRPanelGrid(){
-		JPanel pMisc = new JPanel();
-	    pMisc.setBorder(new EmptyBorder(10, 10, 10, 10));
-		
-		JPanel pGLeft = new JPanel(new GridLayout(7,1,3,3));
-		JPanel pGRight = new JPanel(new GridLayout(7,1,3,3));
-
-		pGLeft.add(lblMAR);
-		pGRight.add(txtMAR);
-		pGLeft.add(lblMBR);
-		pGRight.add(txtMBR);
-		pGLeft.add(lblMSR);
-		pGRight.add(txtMSR);
-		pGLeft.add(lblMFR);
-		pGRight.add(txtMFR);
-		pGLeft.add(lblCC);
-		pGRight.add(txtCC);
-		pGLeft.add(lblIR);
-		pGRight.add(txtIR);
-		pGLeft.add(lblPC);
-		pGRight.add(txtPC);
-
-		pMisc.setLayout(new BorderLayout());
-		pMisc.add(pGLeft, BorderLayout.WEST);
-		pMisc.add(pGRight, BorderLayout.CENTER); //resizable
-		
-		return pMisc;
-		
-	}
-	
-	private JPanel createMiscRPanel(){
-		GriddedPanel gPanel = new GriddedPanel();
-		gPanel.addComponent(lblMAR,0,0);
-		gPanel.addComponent(txtMAR,0,1);
-		gPanel.addComponent(lblMBR,1,0);
-		gPanel.addComponent(txtMBR,1,1);
-		gPanel.addComponent(lblMSR,2,0);
-		gPanel.addComponent(txtMSR,2,1);
-		gPanel.addComponent(lblMFR,3,0);
-		gPanel.addComponent(txtMFR,3,1);
-		gPanel.addComponent(lblCC,4,0);
-		gPanel.addComponent(txtCC,4,1);
-		gPanel.addComponent(lblIR,5,0);
-		gPanel.addComponent(txtIR,5,1);
-		gPanel.addComponent(lblPC,6,0);
-		gPanel.addComponent(txtPC,6,1);
-		
-		gPanel.setBorder(new TitledBorder(BorderFactory.createLineBorder(Color.blue)));
-		
-		FlowLayout fl = new FlowLayout();
-		JPanel wrap = new JPanel();
-		wrap.setLayout(fl);
-		wrap.add(gPanel);
-		fl.setAlignment(FlowLayout.LEFT);
-		return wrap;
-	}
-	private JPanel createIndexRPanel(){
-		GriddedPanel gPanel = new GriddedPanel();
-		gPanel.addComponent(lblX1,0,0);
-		gPanel.addComponent(txtX1,0,1);
-		gPanel.addComponent(lblX2,1,0);
-		gPanel.addComponent(txtX2,1,1);
-		gPanel.addComponent(lblX3,2,0);
-		gPanel.addComponent(txtX3,2,1);
-		gPanel.setBorder(new TitledBorder(BorderFactory.createLineBorder(Color.blue)));
-		
-		FlowLayout fl = new FlowLayout();
-		JPanel wrap = new JPanel();
-		wrap.setLayout(fl);
-		wrap.add(gPanel);
-		fl.setAlignment(FlowLayout.LEFT);
-		return wrap;
-	}
-	
 	private JPanel createIndexRPanelGrid(){
 		
 		JPanel pIndex = new JPanel();
@@ -271,186 +463,32 @@ public class MainSimFrame extends JFrame {
 		return pIndex;
 		
 	}
-	
-	private JPanel createControlPanel(){
-		GriddedPanel gPanel = new GriddedPanel();
-		gPanel.setBorder(new TitledBorder(new EtchedBorder(), 
-			      "Control Panel"));
-		
-		gPanel.addComponent(btnSingleStep,0,0);
-		
-		
-		return gPanel;
-	}
-	
-	private JPanel createConsolePanel(){
-		
-		txtConsoleText.setFont( new Font("consolas", Font.PLAIN, 13));
-		txtConsoleText.setEditable(false);
-		JScrollPane scroll = new JScrollPane( txtConsoleText );
-		scroll.setPreferredSize(new Dimension( 240, 180 ) );
-		
-		JPanel gPanel = new JPanel();
-		gPanel.setBorder(new TitledBorder(new EtchedBorder(), "Console"));
-		gPanel.setLayout(new BorderLayout());
-		gPanel.add(scroll, BorderLayout.CENTER);
-		
-		return gPanel;
-		
-	}
-	
-	
-	private JPanel createGeneralRPanel(){
-	    GriddedPanel gPanel = new GriddedPanel();
-	    
-		gPanel.addComponent(lblR0,0,0);
-		gPanel.addComponent(txtR0,0,1);
-		gPanel.addComponent(lblR1,1,0);
-		gPanel.addComponent(txtR1,1,1);
-		gPanel.addComponent(lblR2,2,0);
-		gPanel.addComponent(txtR2,2,1);
-		gPanel.addComponent(lblR3,3,0);
-		gPanel.addComponent(txtR3,3,1);
-		gPanel.setBorder(new TitledBorder(BorderFactory.createLineBorder(Color.blue)));
-		
-		FlowLayout fl = new FlowLayout();
-		JPanel wrap = new JPanel();
-		wrap.setLayout(fl);
-		wrap.add(gPanel);
-		fl.setAlignment(FlowLayout.LEFT);
-		return wrap;
-		
-	}
-	private JPanel createGeneralRPanelGrid(){
-		
-		
-		JPanel pGeneral = new JPanel();
-	    pGeneral.setBorder(new EmptyBorder(10, 10, 10, 10));
-		
-		JPanel pGLeft = new JPanel(new GridLayout(4,1,3,3));
-		JPanel pGRight = new JPanel(new GridLayout(4,1,3,3));
-		
-		pGLeft.add(lblR0);
-		pGRight.add(txtR0);
-		pGLeft.add(lblR1);
-		pGRight.add(txtR1);
-		pGLeft.add(lblR2);
-		pGRight.add(txtR2);
-		pGLeft.add(lblR3);
-		pGRight.add(txtR3);
-		
-		pGeneral.setLayout(new BorderLayout());
-		pGeneral.add(pGLeft, BorderLayout.WEST);
-		pGeneral.add(pGRight, BorderLayout.CENTER); //resizable
-		
-		return pGeneral;
-		
-	}
-	
-	
-	private JPanel createBinPanel(int start, int end) {
-		JPanel pBinPanel = new JPanel();
-		pBinPanel.setLayout(new GridBagLayout());
-		
-		JPanel tmp = null;
-		for (int i = start; i <= end; i++) {
-			tmp = new JPanel();
-			tmp.setLayout(new GridLayout(2,1,0,0));
+
+	private class SwitchComboActionListener implements ActionListener{
+
+		private void maskSwitches(int start, int end,boolean b){
 			
-			lblBinPosInfo[i] = new JLabel(String.valueOf(i));
-			lblBinPosInfo[i].setPreferredSize(shortField);
-			lblBinPosInfo[i].setHorizontalAlignment(SwingConstants.CENTER);
-//			lblBinPosInfo[i].setBorder(new TitledBorder(BorderFactory.createLineBorder(Color.GREEN)));
-			tmp.add(lblBinPosInfo[i]);
+			for (int i = start; i <= end; i++) {
+				if (radBinData[i]!=null) {
+					radBinData[i].setEnabled(b);
+				}
+			}
+		}
+		@Override
+		public void actionPerformed(ActionEvent e) {
 			
-			radBinData[i] = new JRadioButton();
-//			radBinData[i].setBorder(BorderFactory.createEmptyBorder());
-			logger.debug("bindata created:" + i);
-			tmp.add(radBinData[i]);
-			tmp.setBorder(new TitledBorder(BorderFactory.createLineBorder(Color.blue)));
-			pBinPanel.add(tmp);
+			String selected = (String)((JComboBox)e.getSource()).getSelectedItem();
+			if (RegisterName.X1.getVal().equals(selected)) {
+				maskSwitches(0, 1, true);
+				maskSwitches(2, 19, false);
+			} else 
+				maskSwitches(0, 19, true);
+			
+			logger.debug("selcted :  " + selected);
+			
 		}
-		tmp.setBorder(BorderFactory.createEmptyBorder());
-		
-		pBinPanel.setBorder(new TitledBorder(BorderFactory.createLineBorder(Color.blue)));
-		
-		return pBinPanel; 
-	}
-	private JPanel createSwitchPanel(int start, int end){
-		
-		
-		
-		JPanel btnPanel = new JPanel();
-	    swithOptions.addItem("R0");
-	    swithOptions.addItem("X0");
-	    swithOptions.addItem("IR");
-	    swithOptions.addItem("PC");
-	    swithOptions.addItem("MAR");
-	    swithOptions.addItem("Immed");
-		
-		btnPanel.add(swithOptions);
-		btnPanel.add(btnReset);
-		btnPanel.add(btnLoad);
-		FlowLayout fl = new FlowLayout();
-		fl.setAlignment(FlowLayout.RIGHT);
-		btnPanel.setLayout(fl);
-		
-		JPanel wrapPanel = new JPanel();
-		wrapPanel.setLayout(new GridLayout(2,1,0,0));
-		wrapPanel.add(createBinPanel(start, end));
-		wrapPanel.add(btnPanel);
-		
-		return wrapPanel;
-	}
-	
-
-	/**
-	 * 	 @deprecated
-	 * @param start
-	 * @param end
-	 * @return
-	 */
-	private JPanel createChkPanel(int start, int end){
-		
-		JPanel sInter = new JPanel();
-		sInter.setLayout(new GridBagLayout());
-		JPanel sPanel = new JPanel();
-		sPanel.setLayout(new GridLayout(1,(end-start+1),1,1));
-		
-		for (int i = start; i <= end; i++) {
-			chkBinData[i] = new JCheckBox();
-			chkBinData[i].setBorder(BorderFactory.createEmptyBorder());
-			logger.debug("bindata created:" + i);
-			sPanel.add(chkBinData[i]);
-		}
-		sInter.add(sPanel);
-		sPanel.setBorder(new TitledBorder(BorderFactory.createLineBorder(Color.blue)));
-		return sInter;
 		
 	}
 	
-	private JPanel createPanel() {
-
-		// JPanel panel = new JPanel(new MigLayout());
-		
-		
-		MigLayout layout = new MigLayout("fillx", "[right]rel[left,grow]", "[]1[]"); ///[grow,fill]
-		JPanel panel = new JPanel(layout);
-
-		panel.add(new JLabel("PC:"));
-		panel.add(new JTextField(""), new CC().wrap());
-		JLabel lblIR = new JLabel("IR:");
-		lblIR.setToolTipText("============");
-		panel.add(lblIR);
-		panel.add(new JTextField(""));
-		
-
-		// panel.add(new JScrollPane(new JTextArea(200,100)), "wrap,grow");
-
-		panel.setBorder(BorderFactory.createLineBorder(Color.YELLOW));
-		return panel;
-	}
-
-
 }
 

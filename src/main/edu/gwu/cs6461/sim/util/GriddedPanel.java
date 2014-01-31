@@ -40,7 +40,8 @@ public class GriddedPanel extends JPanel
     */
     public GriddedPanel()
     {
-        this( new Insets( 2, 2, 2, 2 ) );
+//        this( new Insets( 2, 2, 2, 2 ) );
+    	this( new Insets( 1, 3, 1,1 ) );
     }
 
     /**
